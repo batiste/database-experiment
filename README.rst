@@ -13,10 +13,20 @@ servers to the new one to equalize the load.
 There is (currently) 256 clusers of data. Every json data is assigned to a cluster
 using the first 2 characters of the index (a md5 hexadecimal hash).
 
-Then an algorithm is used to determine on which server of the pool
-everyone of these clusters should go. Every server get the same amount
-of clusters. Everytime a server is added to the pool the clusters are redistributed.
-The redistribution is designed to move the smallest amount of clusters.
-and to move the same amount from every server.
+* An algorithm is used to determine to which server everyone of these clusters should go.
+* Every server get the same amount of of clusters.
+* Everytime a server is added to the pool the clusters are redistributed.
+* The redistribution is designed to move the smallest amount of clusters
+  and to move the same amount from every server.
+
+Todo
+======
+
+* Save pool configuration on disk.
+* Implement a way to move clusters or/and documents (automatic or on demand?).
+* Implement a client library.
+* Tests.
+* Save documents in cluster directories.
+* ...
 
 
