@@ -10,7 +10,7 @@ The idea is to have a pool of servers. You can add servers to your
 pool and some data will be automaticaly migrated from the old
 servers to the new one to equalize the load.
 
-There is (currently) 256 clusers of data. Every json data is assigned to a cluster
+This experiment currently uses 256 clusters of data. Every json data is assigned to a cluster
 using the first 2 characters of the index (a md5 hexadecimal hash).
 
 * An algorithm is used to determine to which server everyone of these clusters should go.
