@@ -1,0 +1,26 @@
+<h1>Automatic partitionning database experiment.</h1>
+
+<form method=post action="/documents/">
+<h2>Create a document (json)</h2>
+<table>
+<tr><td>document</td><td><textarea type=text name=document rows=10 cols=100></textarea>
+<tr><td></td><td><input type=submit style="float:right"></td>
+</table>
+
+</form>
+
+<form method=get action="/documents/">
+<h2>Get a document</h2>
+<table>
+<tr><td>hexadecimal index</td><td><input type=text name=index>
+<tr><td></td><td><input type=submit style="float:right"></td>
+</table>
+</form>
+
+<form method=post action="/hosts/join">
+<h2>Register this server to a pool of servers</h2>
+<table>
+<tr><td>any of the address in the pool (eg:127.0.0.1:8800)</td><td><input type=text name=pool_address>
+<tr><td></td><td><input type=submit style="float:right"></td>
+</table>
+</form>
