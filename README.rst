@@ -18,12 +18,12 @@ using the first 2 characters of the index (a md5 hexadecimal hash).
 * Everytime a server is added to the pool the clusters are redistributed.
 * The redistribution is designed to move the smallest amount of clusters
   and to move the same amount from every server.
+* After a new host joined the pool, the clusters are automaticaly moved.
 
 Todo
 ======
 
 * Save pool configuration on disk.
-* Implement a way to move clusters or/and documents (automatic or on demand?).
 * Implement a client library.
 * Tests.
 * Save documents in cluster directories.
