@@ -19,7 +19,7 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-c", "--config", dest="config",
                   help="config file path", metavar="CONFIG")
-parser.add_option("-p", "--port", dest="port", default=8088, type="int",
+parser.add_option("-p", "--port", dest="port", default=8080, type="int",
                   help="port of the server", metavar="PORT")
 parser.add_option("-d", "--directory", dest="directory", default='data',
                   help="directory where to save the documents")
