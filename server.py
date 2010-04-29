@@ -5,7 +5,7 @@ Uses libevent API directly and thus may be dangerous.
 WSGI interface is a safer choice, see examples/wsgiserver.py.
 """
 from gevent import wsgi
-from documents import handle_documents, init_cluster_directories
+from documents import handle_documents, init_cluster_directories, handle_clusters
 from hosts import handle_hosts, host_address, nb_active_hosts
 from http_utils import http, parse_request
 from routing import ClusterDistribution
@@ -37,6 +37,9 @@ def new_distribution():
 
 def app(env, response):
 
+    if env['PATH_INFO'].startswith('/documents'):
+        return handle_documents(env, response, distribution)
+
     if env['PATH_INFO'] == '/':
         homepage = '<br><br>'.join(
             [welcome,
@@ -45,15 +48,15 @@ def app(env, response):
         )
         return http(response, homepage)
 
-    if env['PATH_INFO'].startswith('/documents/'):
-        return handle_documents(env, response, distribution)
+    if env['PATH_INFO'].startswith('/clusters'):
+        return handle_clusters(env, response, distribution)
 
-    if env['PATH_INFO'].startswith('/hosts/'):
+    if env['PATH_INFO'].startswith('/hosts'):
         hosts_reponse = handle_hosts(env, response, host_pool)
         new_distribution()
         return hosts_reponse
 
-    return http(response, "Hu?")
+    return http(response, "app:no routes")
     
 print 'Serving on %d...' % options.port
 wsgi.WSGIServer(('', options.port), app).serve_forever()

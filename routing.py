@@ -17,7 +17,7 @@ class ClusterDistribution(object):
 
     def clusters_for_host(self, host_index):
         """Return the host clusters."""
-        slice_size = float(nb_clusters) / self.nb_hosts
+        slice_size = float(self.nb_clusters) / self.nb_hosts
         start_slice = int(host_index * slice_size)
         end_slice = int((host_index+1) * slice_size)
         return self.distribution[start_slice:end_slice]

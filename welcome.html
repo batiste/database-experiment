@@ -9,7 +9,7 @@
 
 </form>
 
-<form method=get action="/documents/">
+<form method=get action="/documents">
 <h2>Get a document</h2>
 <table>
 <tr><td>hexadecimal index</td><td><input type=text name=index>
@@ -21,6 +21,14 @@
 <h2>Register this server to a pool of servers</h2>
 <table>
 <tr><td>any of the address in the pool (eg:127.0.0.1:8800)</td><td><input type=text name=pool_address>
+<tr><td></td><td><input type=submit style="float:right"></td>
+</table>
+</form>
+
+<form method=post action="/clusters">
+<h2>List a cluster content</h2>
+<table>
+<tr><td>Any cluster</td><td><input type=text name=index>
 <tr><td></td><td><input type=submit style="float:right"></td>
 </table>
 </form>

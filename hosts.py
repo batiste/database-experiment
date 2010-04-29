@@ -4,6 +4,9 @@ import urllib
 import socket
 import cjson as json
 from http_utils import http, parse_request
+from documents import store_document
+from routing import ClusterDistribution
+import gevent
 
 class HostNotFoundError(Exception):
     """Host not found"""
@@ -23,21 +26,31 @@ def nb_active_hosts(host_pool):
 def get_host_index(host_address, host_pool):
     """The numeric index of the host in the pool."""
     for host in host_pool:
-        if my_address != host['address']:
+        if host_address != host['address']:
             return host['index']
     raise HostNotFoundError
 
 
 def migrate_clusters(my_address, host_pool):
-    """Task that migrate every cluster from other server to
+    """Task that migrate every needed clusters from other server to
     this new one."""
-    host_index = get_host_index(my_address)
-    before = ClusterDistribution(nb_active_hosts(host_pool))
-    now = ClusterDistribution(nb_active_hosts(host_pool)+1)
+    host_index = get_host_index(my_address, host_pool)
+    now = ClusterDistribution(nb_active_hosts(host_pool))
+    after = ClusterDistribution(nb_active_hosts(host_pool)+1)
     needed_clusters = after.clusters_for_host(host_index)
     for cluster in needed_clusters:
-        host = now.get_host_from_cluster(cluster)
-        #TODO: get the cluster
+        host_index = now.get_host_from_cluster(cluster)
+        host_address = host_pool[host_index]['address']
+        req = cluster_list_request(host_address, cluster)
+        data = urllib2.urlopen(req)
+        index_list = json.decode(data.read())
+        for index in index_list:
+            req = document_request(host_address, index)
+            data = urllib2.urlopen(req)
+            store_document(index, data.read())
+
+    #todo:notify other servers
+    print("Migration finished successfuly")
 
 def handle_hosts(env, response, host_pool):
     """Handle all the requests on this host"""
@@ -91,6 +104,7 @@ def handle_hosts(env, response, host_pool):
             return http(response, "Join pool failed on %s %s" %
                 (pool_address, e.message))
         pool = data.read()
+        print pool
         new_host_pool = json.decode(pool)
         for host in host_pool:
             host_pool.remove(host)
@@ -103,10 +117,11 @@ def handle_hosts(env, response, host_pool):
                 data = urllib2.urlopen(req)
 
         #TODO: launch the cluster migration
+        migrate_clusters(my_address, host_pool)
             
         return http(response, json.encode(host_pool))
 
-    return http(response, "Hu?")
+    return http(response, "handle_hosts:no routes")
 
 
 
@@ -115,3 +130,15 @@ def join_pool_request(address, pool_address):
     values = {'address' : address}
     data = urllib.urlencode(values)
     return urllib2.Request(register_url, data)
+
+def cluster_list_request(host_address, index):
+    clusters_url = 'http://' + host_address + '/clusters/'
+    values = {'index' : index}
+    data = urllib.urlencode(values)
+    return urllib2.Request(clusters_url, data)
+
+def document_request(host_address, index):
+    document_url = 'http://' + host_address + '/documents/'
+    values = {'index' : index}
+    data = urllib.urlencode(values)
+    return urllib2.Request(document_url, data)

@@ -13,6 +13,15 @@ def init_cluster_directories(distribution):
         if not os.path.exists(path):
             os.mkdir(path)
 
+def list_cluster(cluster_index):
+    return os.listdir(os.path.join(DATA_DIRECTORY, str(cluster_index)))
+
+def handle_clusters(env, response, distribution):
+    content = parse_request(env)
+    index = content.get('index', [None])[0]
+    return http(response, json.encode(list_cluster(index)))
+    
+
 def handle_documents(env, response, distribution):
     # get the content
     content = parse_request(env)
@@ -27,31 +36,33 @@ def handle_documents(env, response, distribution):
         target_host = distribution.get_host_from_cluster(cluster_index)
         if target_host != distribution.current_host:
             return http(response,
-                'This document is not on this host but on host (%s)' % target_host)
+                "This document is not on this host but on host (%s)" % target_host)
 
     method = env['REQUEST_METHOD']
 
-    if method == 'GET' and not index:
-        return http(response,
-            'Must provide  index (%s)' % index)
-    if method == 'POST' and not document:
-        return http(response, 'Must provide json document.')
-
-    if method == 'POST':
-        if not index:
-            index = create_index(document)
-        try:
-            store_document(index, document)
-        except json.DecodeError:
-            return http(response, 'Json is invalid.<br>'+document)
-        return http(response, index)
-
     if method == 'GET':
+        if not index:
+            return http(response, "Must provide  index (%s)" % index)
+
         try:
             document = read_document(index)
         except IOError:
             return http(response, "Document not found.", code=404)
         return http(response, document)
+
+    if method == 'POST':
+        if not document:
+            return http(response, "Must provide a json document.")
+            
+        if not index:
+            index = create_index(document)
+        try:
+            store_document(index, document)
+        except json.DecodeError:
+            return http(response, "Json is invalid.")
+        return http(response, index)
+
+    return http(response, "handle_documents:no routes")
 
 
 def store_document(index, document):
