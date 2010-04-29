@@ -4,6 +4,15 @@ import md5
 import urllib
 from http_utils import http, parse_request
 
+DATA_DIRECTORY = 'data'
+CHECK_VALID_JSON_DOCUMENT = True
+
+def init_cluster_directories(distribution):
+    for cluster in range(distribution.nb_clusters):
+        path = os.path.join(DATA_DIRECTORY, str(cluster))
+        if not os.path.exists(path):
+            os.mkdir(path)
+
 def handle_documents(env, response, distribution):
     # get the content
     content = parse_request(env)
@@ -14,8 +23,8 @@ def handle_documents(env, response, distribution):
         # take the 2 first hexa value to determine
         # in which cluster the data should be.
         # It works with 256 cluster only
-        dec_index = int(index[0:2], 16)
-        target_host = distribution.get_host_from_cluster(dec_index)
+        cluster_index = int(index[0:2], 16)
+        target_host = distribution.get_host_from_cluster(cluster_index)
         if target_host != distribution.current_host:
             return http(response,
                 'This document is not on this host but on host (%s)' % target_host)
@@ -46,9 +55,11 @@ def handle_documents(env, response, distribution):
 
 
 def store_document(index, document):
-    # to check the validity of the document
-    json.encode(json.decode(document))
-    fh = open(os.path.join('data', index), "wb")
+    cluster_index = str(int(index[0:2], 16))
+    # to check the validity of the document on write
+    if CHECK_VALID_JSON_DOCUMENT:
+        json.decode(document)
+    fh = open(os.path.join(DATA_DIRECTORY, cluster_index, index), "wb")
     # simple os lock system
     #fcntl.lockf(fh, fcntl.LOCK_EX)
     fh.write(document)
@@ -56,7 +67,8 @@ def store_document(index, document):
     #fcntl.lockf(fh, fcntl.LOCK_UN)
 
 def read_document(index):
-    fh = open(os.path.join('data', index), "rb")
+    cluster_index = str(int(index[0:2], 16))
+    fh = open(os.path.join(DATA_DIRECTORY, cluster_index, index), "rb")
     doc = fh.read()
     fh.close()
     return doc

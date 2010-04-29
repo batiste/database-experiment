@@ -5,12 +5,12 @@ Uses libevent API directly and thus may be dangerous.
 WSGI interface is a safer choice, see examples/wsgiserver.py.
 """
 from gevent import wsgi
-from documents import handle_documents
-from hosts import handle_hosts, host_id
+from documents import handle_documents, init_cluster_directories
+from hosts import handle_hosts, host_address, nb_active_hosts
 from http_utils import http, parse_request
 from routing import ClusterDistribution
 import os
-import socket
+
 fh = open('welcome.html', 'r')
 welcome = fh.read()
 fh.close()
@@ -25,14 +25,15 @@ parser.add_option("-d", "--directory", dest="directory", default='data',
                   help="directory where to save the documents")
 (options, args) = parser.parse_args()
 
-host = {'address':host_id(socket.gethostbyname(socket.gethostname()),
-    options.port), 'index':0}
+host = {'address':host_address(options.port), 'index':0, 'state':'alone'}
 host_pool = [host]
 distribution = ClusterDistribution(1)
+init_cluster_directories(distribution)
 
 def new_distribution():
-    # create a new cluster_distribution
-    distribution = ClusterDistribution(len(host_pool))
+    # create a new cluster_distribution, distribution is according to
+    # the number of active hosts
+    distribution = ClusterDistribution(nb_active_hosts(host_pool))
 
 def app(env, response):
 
