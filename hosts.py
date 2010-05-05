@@ -134,7 +134,7 @@ def handle_hosts(env, response, host_pool):
         for host in new_pool:
             # avoid deadly infinite loop
             if my_address != host['address']:
-                req = join_pool_request(my_address, host['address'])
+                req = register_pool_request(my_address, host['address'])
                 data = urllib2.urlopen(req)
                 assert(data.read() == WELCOME_POOL)
 
@@ -169,9 +169,15 @@ def handle_hosts(env, response, host_pool):
 
 
 
-def join_pool_request(address, pool_address):
+def register_pool_request(address, pool_address):
     register_url = 'http://' + pool_address + '/hosts/register'
     values = {'address' : address}
+    data = urllib.urlencode(values)
+    return urllib2.Request(register_url, data)
+
+def join_pool_request(address, pool_address):
+    register_url = 'http://' + address + '/hosts/join'
+    values = {'pool_address' : pool_address}
     data = urllib.urlencode(values)
     return urllib2.Request(register_url, data)
 
@@ -196,3 +202,5 @@ def document_request(host_address, index):
     values = {'index' : index}
     data = urllib.urlencode(values)
     return urllib2.Request(document_url, data)
+
+

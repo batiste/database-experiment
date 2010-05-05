@@ -1,9 +1,9 @@
 
 class ClusterDistribution(object):
 
-    def __init__(self, nb_hosts, current_host=0):
+    def __init__(self, nb_hosts, current_host=0, nb_clusters=256):
 
-        self.nb_clusters = 256
+        self.nb_clusters = nb_clusters
         self.nb_hosts = nb_hosts
         self.clusters_by_host = self.nb_clusters / self.nb_hosts
         # index of the current host

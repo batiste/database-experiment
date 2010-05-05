@@ -1,6 +1,6 @@
 import cjson as json
 import os
-import md5
+import hashlib
 import urllib
 from http_utils import http, parse_request
 
@@ -42,7 +42,7 @@ def handle_documents(env, response, distribution):
 
     if method == 'GET':
         if not index:
-            return http(response, "Must provide  index (%s)" % index)
+            return http(response, "Must provide  index (%s)" % index, code=404)
 
         try:
             document = read_document(index)
@@ -85,6 +85,6 @@ def read_document(index):
     return doc
 
 def create_index(document):
-    m = md5.new()
+    m = hashlib.md5()
     m.update(document)
     return m.hexdigest()
