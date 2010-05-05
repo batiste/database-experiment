@@ -12,15 +12,15 @@ class TestServers(unittest.TestCase):
         import shlex, subprocess
         import time
         
-        args = shlex.split('python server.py -p8080')
+        args = shlex.split('python server.py -p8080 -d12')
         server1 = subprocess.Popen(args)
         self.servers.append(server1)
 
-        args = shlex.split('python server.py -p8081')
+        args = shlex.split('python server.py -p8081 -d12')
         server2 = subprocess.Popen(args)
         self.servers.append(server2)
 
-        args = shlex.split('python server.py -p8082')
+        args = shlex.split('python server.py -p8082 -d12')
         server2 = subprocess.Popen(args)
         self.servers.append(server2)
         
@@ -77,6 +77,18 @@ class TestServers(unittest.TestCase):
 
 
         req = join_pool_request('127.0.1.1:8082', '127.0.1.1:8081')
+        data = urllib2.urlopen(req)
+        
+        self.assertEqual(
+            cjson.decode(data.read()),
+            [
+                {"index": 0, "state": "pooling", "address": "127.0.1.1:8081"},
+                {"index": 1, "state": "pooling", "address": "127.0.1.1:8080"},
+                {"index": 2, "state": "pooling", "address": "127.0.1.1:8082"}
+            ]
+        )
+
+        req = get_pool_request('127.0.0.1:8081')
         data = urllib2.urlopen(req)
         self.assertEqual(
             cjson.decode(data.read()),

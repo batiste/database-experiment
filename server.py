@@ -20,9 +20,9 @@ parser = OptionParser()
 parser.add_option("-c", "--config", dest="config",
                   help="config file path", metavar="CONFIG")
 parser.add_option("-p", "--port", dest="port", default=8080, type="int",
-                  help="port of the server", metavar="PORT")
-parser.add_option("-d", "--directory", dest="directory", default='data',
-                  help="directory where to save the documents")
+                  help="port of the server.", metavar="PORT")
+parser.add_option("-d", "--cluster-distribution", dest="distribution", type="int", default=256,
+                  help="amount of clusters wanted in the distribution.")
 (options, args) = parser.parse_args()
 
 host = {'address':host_address(options.port), 'index':0, 'state':'alone'}
@@ -33,7 +33,10 @@ init_cluster_directories(distribution)
 def new_distribution():
     # create a new cluster_distribution, distribution is according to
     # the number of active hosts
-    distribution = ClusterDistribution(nb_active_hosts(host_pool))
+    distribution = ClusterDistribution(
+        nb_active_hosts(host_pool),
+        nb_clusters=options.distribution
+    )
 
 def app(env, response):
 

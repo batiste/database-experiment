@@ -124,8 +124,10 @@ def handle_hosts(env, response, host_pool):
 
         
         new_pool = json.decode(data.read())
-        for host in host_pool:
-            host_pool.remove(host)
+        
+        # empty local host_pool
+        for host in range(len(host_pool)):
+            host_pool.pop(0)
 
         for host in new_pool:
             host_pool.append(host)
@@ -157,8 +159,12 @@ def handle_hosts(env, response, host_pool):
 
 
         new_pool = json.decode(data.read())
-        for host in host_pool:
-            host_pool.remove(host)
+
+        # empty local host_pool
+        for host in range(len(host_pool)):
+            host_pool.pop(0)
+
+        assert(host_pool == [])
 
         for host in new_pool:
             host_pool.append(host)
