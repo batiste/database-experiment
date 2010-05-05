@@ -12,15 +12,15 @@ class TestServers(unittest.TestCase):
         import shlex, subprocess
         import time
         
-        args = shlex.split('python server.py -p8080 -d12')
+        args = shlex.split('python server.py -p8080 -d12 -sdata1')
         server1 = subprocess.Popen(args)
         self.servers.append(server1)
 
-        args = shlex.split('python server.py -p8081 -d12')
+        args = shlex.split('python server.py -p8081 -d12 -sdata2')
         server2 = subprocess.Popen(args)
         self.servers.append(server2)
 
-        args = shlex.split('python server.py -p8082 -d12')
+        args = shlex.split('python server.py -p8082 -d12 -sdata3')
         server2 = subprocess.Popen(args)
         self.servers.append(server2)
         
@@ -99,11 +99,7 @@ class TestServers(unittest.TestCase):
             ]
         )
 
-        #[{'index': 1, 'state': 'pooling', 'address': '127.0.1.1:8080'},
-        #{'index': 0, 'state': 'pooling', 'address': '127.0.1.1:8081'},
-        #{'index': 1, 'state': 'pooling', 'address': '127.0.1.1:8080'},
-        #{'index': 2, 'state': 'pooling', 'address': '127.0.1.1:8082'}]
-
+        # we now have a pool
 
     def tearDown(self):
         for server in self.servers:

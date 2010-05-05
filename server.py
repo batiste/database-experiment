@@ -23,12 +23,14 @@ parser.add_option("-p", "--port", dest="port", default=8080, type="int",
                   help="port of the server.", metavar="PORT")
 parser.add_option("-d", "--cluster-distribution", dest="distribution", type="int", default=256,
                   help="amount of clusters wanted in the distribution.")
+parser.add_option("-s", "--storage", dest="storage", default="data",
+                  help="where to store the clusters.")
 (options, args) = parser.parse_args()
 
 host = {'address':host_address(options.port), 'index':0, 'state':'alone'}
 host_pool = [host]
 distribution = ClusterDistribution(1)
-init_cluster_directories(distribution)
+init_cluster_directories(options.storage, distribution)
 
 def new_distribution():
     # create a new cluster_distribution, distribution is according to
@@ -41,7 +43,7 @@ def new_distribution():
 def app(env, response):
 
     if env['PATH_INFO'].startswith('/documents'):
-        return handle_documents(env, response, distribution)
+        return handle_documents(env, response, distribution, options.storage)
 
     if env['PATH_INFO'] == '/':
         homepage = '<br><br>'.join(
@@ -52,7 +54,7 @@ def app(env, response):
         return http(response, homepage)
 
     if env['PATH_INFO'].startswith('/clusters'):
-        return handle_clusters(env, response, distribution)
+        return handle_clusters(env, response, distribution, options.storage)
 
     if env['PATH_INFO'].startswith('/hosts'):
         hosts_reponse = handle_hosts(env, response, host_pool)
